@@ -1,0 +1,61 @@
+pipeline {
+
+agent {label 'jenkins-np-pod' }
+//import groovy.json.JsonSlurperClassic
+stages {
+  stage('Variable decalration') {
+    steps{
+		def BUILD_NUMBER=env.BUILD_NUMBER
+		def RUN_ARTIFACT_DIR="tests/${BUILD_NUMBER}"
+		def PACK_DIR="MyPackage${BUILD_NUMBER}"
+		def SFDC_USERNAME
+		def workspace = env.WORKSPACE
+		def MY_JOB_NAME = env.JOB_NAME
+		def SFDC_HOST = env.SFDC_HOST_DH_TEST
+		def CURRENTRELEASE
+		def HUB_ORG
+		def rpackvalrep
+		def JWT_KEY_CRED_ID
+		def CONNECTED_APP_CONSUMER_KEY
+		def ENV_NAME
+        println MY_JOB_NAME
+	}	
+  }  
+	  stage ('Main Stage') {
+	    steps {
+		    script {
+		  
+                    if (MY_JOB_NAME.contains("BV_SFDX_CI_DevTest_Validate_n_Deploy")) {
+					print "For DeclarativeTest"
+					ENV_NAME="DevTest"
+					CURRENTRELEASE=env.RELEASE
+					HUB_ORG=env.HUB_ORG_DH_DEV
+					JWT_KEY_CRED_ID=env.JWT_CRED_ID_DH_DEV
+					CONNECTED_APP_CONSUMER_KEY=env.CONNECTED_APP_CONSUMER_KEY_DH_DEV
+					println JWT_KEY_CRED_ID
+				    }
+				
+				
+
+			println 'KEY IS' 
+			println JWT_KEY_CRED_ID
+			println HUB_ORG
+			println SFDC_HOST
+			println CONNECTED_APP_CONSUMER_KEY
+			println env.BRANCH_NAME
+			id = sh returnStatus: true, script: "bash"
+			pt = sh returnStatus: true, script: "echo $PATH"
+			sd = sh returnStatus: true, script: "which sfdx"
+			println CURRENTRELEASE
+		   }
+		}	
+	}
+	}
+
+       
+    stage('Clone Source') {
+        // when running in multi-branch job, one must issue this command
+        checkout scm
+        mybranch = sh returnStdout: true, script: "git branch"
+        println ("Branch is :: " + mybranch);
+    }
